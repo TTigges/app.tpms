@@ -144,10 +144,6 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 
 	},
 
-	pressure: {
-		normal: 2
-	},
-
 	/***
 	 *** User Interface Life Cycles
 	 ***/
@@ -159,6 +155,12 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 	 *
 	 * Add any content that will be static here
 	 */
+
+	pressure: {
+		normal: 2
+	},
+
+	outTemp: 0,
 
 	created: function() {
 
@@ -220,7 +222,21 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 
 		this.tpmsContainer = this.element("div", "tpmsContainer", false, false, this.tires, false);
 
-		this.handlePressure();
+//		We fake some values with speed values, just to test the function:
+		
+		this.subscribe(VehicleData.temperature.outside, function(value) {
+
+			this.outTemp = value;
+
+		}.bind(this));
+
+
+		this.subscribe(VehicleData.vehicle.speed, function(value) {
+
+			values = [{pressure: (value*10)+50, temperature: this.outTemp+2},{pressure: (value*10)+100, temperature: this.outTemp+3},{pressure: (value*10)+150, temperature: this.outTemp+4},{pressure: (value*10)+200, temperature: this.outTemp+5}];
+			this.handlePressure(values);
+
+		}.bind(this));
 
 	},
 
@@ -268,40 +284,16 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 
 	},
 
-	handlePressure: function() {
+	handlePressure: function(values) {
 
-		var values = [
-			{
-				pressure: 1930,
-				temperature: 24
-			},
-			{
-				pressure: 2000,
-				temperature: 25
-			},
-			{
-				pressure: 2100,
-				temperature: 26
-			},
-			{
-				pressure: 2200,
-				temperature: 27
-			}
-		];
-
-		var flpressure = this.round(values[0].pressure / 1000); // converted to bar and rounded
+		var flpressure = (values[0].pressure / 1000); // converted to bar and rounded
 		var fltemperature = values[0].temperature;
-		var frpressure = this.round(values[1].pressure / 1000); // converted to bar and rounded
+		var frpressure = (values[1].pressure / 1000); // converted to bar and rounded
 		var frtemperature = values[1].temperature;
-		var rrpressure = this.round(values[2].pressure / 1000); // converted to bar and rounded
+		var rrpressure = (values[2].pressure / 1000); // converted to bar and rounded
 		var rrtemperature = values[2].temperature;
-		var rlpressure = this.round(values[3].pressure / 1000); // converted to bar and rounded
+		var rlpressure = (values[3].pressure / 1000); // converted to bar and rounded
 		var rltemperature = values[3].temperature;
-
-		$("#flpressure").append(flpressure);
-		$("#frpressure").append(frpressure);
-		$("#rrpressure").append(rrpressure);
-		$("#rlpressure").append(rlpressure);
 
 		var flperc = this.pixelposition(flpressure);
 		var frperc = this.pixelposition(frpressure);
@@ -313,15 +305,36 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 		var percOffrr = this.calcoffset(rrpressure);
 		var percOffrl = this.calcoffset(rlpressure);
 
+		this.canvas.find("#flpressure").html(this.round(flpressure));
+		this.canvas.find("#frpressure").html(this.round(frpressure));
+		this.canvas.find("#rrpressure").html(this.round(rrpressure));
+		this.canvas.find("#rlpressure").html(this.round(rlpressure));
+
+		this.canvas.find("#flprg").css("height",flperc+"px");
+		this.canvas.find("#frprg").css("height",frperc+"px");
+		this.canvas.find("#rrprg").css("height",rrperc+"px");
+		this.canvas.find("#rlprg").css("height",rlperc+"px");
+
+		this.canvas.find("#flprg").css("background",this.perc2color(percOfffl));
+		this.canvas.find("#frprg").css("background",this.perc2color(percOfffr));
+		this.canvas.find("#rrprg").css("background",this.perc2color(percOffrr));
+		this.canvas.find("#rlprg").css("background",this.perc2color(percOffrl));
+
+		this.canvas.find("#fltemp").html(fltemperature);
+		this.canvas.find("#frtemp").html(frtemperature);
+		this.canvas.find("#rrtemp").html(rrtemperature);
+		this.canvas.find("#rltemp").html(rltemperature);
+
 	},
 
 // Helperfunctions:
 	round: function(value) {
 		var interval = 0.05; // could be changed
+		var decimals = 2; // could be changed
 	//	interval || (interval = 1.0);
 		var inv = 1.0 / interval;
 		var res = Math.round(value * inv) / inv;
-		return res.toFixed(2).toLocaleString('de'); // needs to be adapted to your locale // decimal point vs comma
+		return res.toFixed(decimals).toLocaleString('de'); // needs to be adapted to your locale // decimal point vs comma
 	},
 
 	pixelposition: function(pres) {
@@ -331,7 +344,7 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 	},
 
 	calcoffset: function(pres) {
-		var normalPressure = normalPressure;
+		var normalPressure = this.pressure.normal;
 		var multiplier = 6; // can be modified to have the color change earlier or later to yellow/orange/red
 		if (pres === normalPressure) {
 			var diff = 0;
@@ -362,9 +375,5 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 		var h = r * 0x10000 + g * 0x100 + b * 0x1;
 		return '#' + ('000000' + h.toString(16)).slice(-6);
 	}
-
-
-
-
 
 })); /** EOF **/
