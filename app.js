@@ -156,7 +156,7 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 	 */
 
 	pressureSettings: {
-		normal: 2,
+		normal: 2.00,
 		warnDiff: 0.2,
 		multiplier: 6 // can be modified to have the color change earlier or later to yellow/orange/red
 	},
@@ -221,12 +221,24 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 			var tirecontainer = this.element("div", this.tires[i].position, (this.tires[i].classeslist + " tirecontainer"), false, [tire, gaugecontainer, pressure, temperature]).appendTo(this.tirescontainer);
 		}
 
-		this.tpmsContainer = this.element("div", "tpmsContainer", false, false, this.tirescontainer, false);
+				var otvalue = this.element("span", "outtemp", false, false, "0", true);
+				var otunit  = this.element("span", "outtempunit", "dimmed", false, "&deg;C", true);
+			var otcontainer = this.element("div", "outtempcontainer", false, false, [otvalue, otunit], true);
+			var otname = this.element("div", "outtempname", false, false, "Au&szlig;entemperatur", true);
+		var outsideTemperature = this.element("div", "outsidetemp", false, false, [otcontainer, otname]).appendTo(this.tirescontainer);
 
+				var npvalue = this.element("span", "normpres", false, false, this.decDot(this.round(this.pressureSettings.normal)), true);
+				var npunit  = this.element("span", "normpresunit", "dimmed small", false, "&nbsp;bar", true);
+			var npcontainer = this.element("div", "normprescontainer", false, false, [npvalue, npunit], true);
+			var npname = this.element("div", "normpresname", false, false, "Soll-Druck", true);
+		var normalPressure = this.element("div", "normpressure", false, false, [npcontainer, npname]).appendTo(this.tirescontainer);
+
+		this.tpmsContainer = this.element("div", "tpmsContainer", false, false, this.tirescontainer, false);
 
 //
 		this.subscribe(VehicleData.temperature.outside, function(value) {
 			this.outTemp = value;
+			this.canvas.find("#outtemp").html(value);
 		}.bind(this));
 
 //		We fake some values with speed values, just to test the function:
@@ -234,7 +246,6 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 			values = [{pressure: (value*10)+50, temperature: this.outTemp+2},{pressure: (value*10)+100, temperature: this.outTemp+3},{pressure: (value*10)+150, temperature: this.outTemp+4},{pressure: (value*10)+200, temperature: this.outTemp+5}];
 			this.handlePressure(values);
 		}.bind(this));
-
 	},
 
 	/**
@@ -293,7 +304,7 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 
 			this.canvas.find("#"+this.tires[i].tireid).attr("class", tempClassName);
 			this.canvas.find("#"+this.tires[i].prgid).css({"background": tempColor, "height": tempHeight+"px"});
-			this.canvas.find("#"+this.tires[i].pressureid).html(tempPressure);
+			this.canvas.find("#"+this.tires[i].pressureid).html(this.decDot(tempPressure));
 			this.canvas.find("#"+this.tires[i].tempid).html(values[i].temperature);
 
 		}
@@ -307,7 +318,7 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 	//	interval || (interval = 1.0);
 		var inv = 1.0 / interval;
 		var res = Math.round(value * inv) / inv;
-		return res.toFixed(decimals).toLocaleString('de'); // needs to be adapted to your locale // decimal point vs comma
+		return res.toFixed(decimals); // decDot = German, needs to be changeable by region/locale
 	},
 
 	pixelposition: function(pres) {
@@ -359,6 +370,10 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 		}
 		var h = r * 0x10000 + g * 0x100 + b * 0x1;
 		return '#' + ('000000' + h.toString(16)).slice(-6);
+	},
+
+	decDot: function(value) {
+		return value.replace(".",",");
 	}
 
 })); /** EOF **/
