@@ -162,80 +162,76 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 
 	outTemp: 0,
 
+	tires: [
+		{
+			position:"fl",
+			classeslist:"front left",
+			tireid:"fltire",
+			prgid:"flprg",
+			pressureid:"flpressure",
+			tempid:"fltemp"
+		},
+		{
+			position:"fr",
+			classeslist:"front right",
+			tireid:"frtire",
+			prgid:"frprg",
+			pressureid:"frpressure",
+			tempid:"frtemp"
+		},
+		{
+			position:"rr",
+			classeslist:"rear right",
+			tireid:"rrtire",
+			prgid:"rrprg",
+			pressureid:"rrpressure",
+			tempid:"rrtemp"
+		},
+		{
+			position:"rl",
+			classeslist:"rear left",
+			tireid:"rltire",
+			prgid:"rlprg",
+			pressureid:"rlpressure",
+			tempid:"rltemp"
+		}
+	],
+
 	created: function() {
 
-		var tires = [
-			{
-				position:"fl",
-				classeslist:"front left",
-				tireid:"fltire",
-				prgid:"flprg",
-				pressureid:"flpressure",
-				tempid:"fltemp"
-			},
-			{
-				position:"fr",
-				classeslist:"front right",
-				tireid:"frtire",
-				prgid:"frprg",
-				pressureid:"frpressure",
-				tempid:"frtemp"
-			},
-			{
-				position:"rr",
-				classeslist:"rear right",
-				tireid:"rrtire",
-				prgid:"rrprg",
-				pressureid:"rrpressure",
-				tempid:"rrtemp"
-			},
-			{
-				position:"rl",
-				classeslist:"rear left",
-				tireid:"rltire",
-				prgid:"rlprg",
-				pressureid:"rlpressure",
-				tempid:"rltemp"
-			}
-		];
+		this.tirescontainer = this.element("div", "tires", false, false, "", false);
 
-		this.tires = this.element("div", "tires", false, false, "", false);
-
-		for (var i=0; i<tires.length; i++) {
+		for (var i=0; i<this.tires.length; i++) {
 		// tire element:
-			var tire = this.element("div", tires[i].tireid, "tire", false, "", true);
+			var tire = this.element("div", this.tires[i].tireid, "tire", false, "", true);
 		// gauge container with gauge elements:
-			var gauge = this.element("div", tires[i].prgid, "pressuregauge", false, "", true);
+			var gauge = this.element("div", this.tires[i].prgid, "pressuregauge", false, "", true);
 			var scale = this.element("div", false, "scale scalenorm", false, "", true);
 			var gaugecontainer = this.element("div", false, "pressuregaugecontainer", false, [gauge, scale], true);
 		// pressure with value and unit:
-			var pressurevalue = this.element("span", tires[i].pressureid, "pressurevalue", false, "2,0", true);
+			var pressurevalue = this.element("span", this.tires[i].pressureid, "pressurevalue", false, "2,0", true);
 			var pressureunit = this.element("span", false, "pressureunit", false, "bar", true);
 			var pressure = this.element("div", false, "pressure", false, [pressurevalue, pressureunit]);
 		// temperature with value and unit:
-			var temperaturevalue = this.element("span", tires[i].tempid, "temperaturevalue", false, "9,0", true);
+			var temperaturevalue = this.element("span", this.tires[i].tempid, "temperaturevalue", false, "9,0", true);
 			var temperatureunit = this.element("span", false, false, false, "&deg;C", true);
 			var temperature = this.element("div", false, "temperature", false, [temperaturevalue, temperatureunit]);
 		// combine all in the tirecontainer:
-			var tirecontainer = this.element("div", tires[i].position, (tires[i].classeslist + " tirecontainer"), false, [tire, gaugecontainer, pressure, temperature]).appendTo(this.tires);
+			var tirecontainer = this.element("div", this.tires[i].position, (this.tires[i].classeslist + " tirecontainer"), false, [tire, gaugecontainer, pressure, temperature]).appendTo(this.tirescontainer);
 		}
 
-		this.tpmsContainer = this.element("div", "tpmsContainer", false, false, this.tires, false);
+		this.tpmsContainer = this.element("div", "tpmsContainer", false, false, this.tirescontainer, false);
 
-//		We fake some values with speed values, just to test the function:
-		
+
+//
 		this.subscribe(VehicleData.temperature.outside, function(value) {
-
 			this.outTemp = value;
-
 		}.bind(this));
 
-
+//		We fake some values with speed values, just to test the function:
 		this.subscribe(VehicleData.vehicle.speed, function(value) {
-
 			values = [{pressure: (value*10)+50, temperature: this.outTemp+2},{pressure: (value*10)+100, temperature: this.outTemp+3},{pressure: (value*10)+150, temperature: this.outTemp+4},{pressure: (value*10)+200, temperature: this.outTemp+5}];
 			this.handlePressure(values);
-
 		}.bind(this));
 
 	},
@@ -286,44 +282,18 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 
 	handlePressure: function(values) {
 
-		var flpressure = (values[0].pressure / 1000); // converted to bar and rounded
-		var fltemperature = values[0].temperature;
-		var frpressure = (values[1].pressure / 1000); // converted to bar and rounded
-		var frtemperature = values[1].temperature;
-		var rrpressure = (values[2].pressure / 1000); // converted to bar and rounded
-		var rrtemperature = values[2].temperature;
-		var rlpressure = (values[3].pressure / 1000); // converted to bar and rounded
-		var rltemperature = values[3].temperature;
+		for (var i=0; i<values.length; i++) {
 
-		var flperc = this.pixelposition(flpressure);
-		var frperc = this.pixelposition(frpressure);
-		var rrperc = this.pixelposition(rrpressure);
-		var rlperc = this.pixelposition(rlpressure);
+			var tempPressure = this.round(values[i].pressure/1000); // assuming hPa
+			var tempHeight = this.pixelposition(tempPressure);
+			var tempOffset = this.calcoffset(tempPressure);
+			var tempColor = this.perc2color(tempOffset);
 
-		var percOfffl = this.calcoffset(flpressure);
-		var percOfffr = this.calcoffset(frpressure);
-		var percOffrr = this.calcoffset(rrpressure);
-		var percOffrl = this.calcoffset(rlpressure);
+			this.canvas.find("#"+this.tires[i].prgid).css({"background": tempColor, "height": tempHeight+"px"});
+			this.canvas.find("#"+this.tires[i].pressureid).html(tempPressure);
+			this.canvas.find("#"+this.tires[i].tempid).html(values[i].temperature);
 
-		this.canvas.find("#flpressure").html(this.round(flpressure));
-		this.canvas.find("#frpressure").html(this.round(frpressure));
-		this.canvas.find("#rrpressure").html(this.round(rrpressure));
-		this.canvas.find("#rlpressure").html(this.round(rlpressure));
-
-		this.canvas.find("#flprg").css("height",flperc+"px");
-		this.canvas.find("#frprg").css("height",frperc+"px");
-		this.canvas.find("#rrprg").css("height",rrperc+"px");
-		this.canvas.find("#rlprg").css("height",rlperc+"px");
-
-		this.canvas.find("#flprg").css("background",this.perc2color(percOfffl));
-		this.canvas.find("#frprg").css("background",this.perc2color(percOfffr));
-		this.canvas.find("#rrprg").css("background",this.perc2color(percOffrr));
-		this.canvas.find("#rlprg").css("background",this.perc2color(percOffrl));
-
-		this.canvas.find("#fltemp").html(fltemperature);
-		this.canvas.find("#frtemp").html(frtemperature);
-		this.canvas.find("#rrtemp").html(rrtemperature);
-		this.canvas.find("#rltemp").html(rltemperature);
+		}
 
 	},
 
