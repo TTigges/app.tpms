@@ -26,12 +26,11 @@
 
 
 /**
- * HelloWorld Application
+ * Tire Pressue Monitoring System by Torben Tigges
  *
  * This is the main file of the application and contains the required information
  * to run the application on the mini framework.
  *
- * The filename needs to be app.js in order to be recognized by the loader.
  */
 
 CustomApplicationsHandler.register("app.tpms", new CustomApplication({
@@ -159,7 +158,7 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 	pressureSettings: {
 		normal: 2,
 		warnDiff: 0.2,
-		multiplier: 6
+		multiplier: 6 // can be modified to have the color change earlier or later to yellow/orange/red
 	},
 
 	outTemp: 0,
@@ -290,9 +289,9 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 			var tempHeight = this.pixelposition(tempPressure);
 			var tempOffset = this.comparePressure(tempPressure, "offset");
 			var tempColor = this.perc2color(tempOffset);
-			var className = this.comparePressure(tempPressure, "class");
+			var tempClassName = this.comparePressure(tempPressure, "class");
 
-			this.canvas.find("#"+this.tires[i].tireid).attr("class", className);
+			this.canvas.find("#"+this.tires[i].tireid).attr("class", tempClassName);
 			this.canvas.find("#"+this.tires[i].prgid).css({"background": tempColor, "height": tempHeight+"px"});
 			this.canvas.find("#"+this.tires[i].pressureid).html(tempPressure);
 			this.canvas.find("#"+this.tires[i].tempid).html(values[i].temperature);
