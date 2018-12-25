@@ -158,7 +158,8 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 
 	pressureSettings: {
 		normal: 2,
-		warnDiff: 0.2
+		warnDiff: 0.2,
+		multiplier: 6
 	},
 
 	outTemp: 0,
@@ -287,9 +288,9 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 
 			var tempPressure = this.round(values[i].pressure/1000); // assuming hPa
 			var tempHeight = this.pixelposition(tempPressure);
-			var tempOffset = this.calcoffset(tempPressure);
+			var tempOffset = this.comparePressure(tempPressure, "offset");
 			var tempColor = this.perc2color(tempOffset);
-			var className = this.checkwarn(tempPressure);
+			var className = this.comparePressure(tempPressure, "class");
 
 			this.canvas.find("#"+this.tires[i].tireid).attr("class", className);
 			this.canvas.find("#"+this.tires[i].prgid).css({"background": tempColor, "height": tempHeight+"px"});
@@ -316,23 +317,35 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 		return maxHeight-(maxHeight*(maxPressure-pres));
 	},
 
-	calcoffset: function(pres) {
+	comparePressure: function(value, answer) {
 		var normalPressure = this.pressureSettings.normal;
-		var multiplier = 6; // can be modified to have the color change earlier or later to yellow/orange/red
-		if (pres === normalPressure) {
+		var alarmDiff = this.pressureSettings.warnDiff;
+	//	var warnDiff = alarmDiff - 0.05; // or changes to this.pressureSettings
+		var multiplier = this.pressureSettings.multiplier; // can be modified to have the color change earlier or later to yellow/orange/red
+		if (value === normalPressure) {
 			var diff = 0;
 		}
-		else if (pres < normalPressure) {
-			var diff = normalPressure - pres;
+		else if (value < normalPressure) {
+			var diff = normalPressure - value;
 		}
 		else {
-			var diff = pres - normalPressure;
+			var diff = value - normalPressure;
 		}
-		diff = diff*multiplier;
-		if (diff > 100) {
-			diff = 100;
+		if (answer === "class") {
+			if (diff >= alarmDiff-0.01) { // -0.01 => weird error: no warning shown at 1.8 but at 2.2
+				return "tire alarm";
+			}
+			else {
+				return "tire norm";
+			}
 		}
-		return  (diff/normalPressure) * 100;
+		else if (answer === "offset") {
+			diff = diff * multiplier;
+			if (diff > 100) {
+				diff = 100;
+			}
+			return  (diff / normalPressure) * 100;
+		}
 	},
 
 	perc2color: function(perc) {
@@ -347,30 +360,6 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 		}
 		var h = r * 0x10000 + g * 0x100 + b * 0x1;
 		return '#' + ('000000' + h.toString(16)).slice(-6);
-	},
-
-	checkwarn: function(value) {
-		var normalPressure = this.pressureSettings.normal;
-		var alarmDiff = this.pressureSettings.warnDiff;
-	//	var warnDiff = alarmDiff - 0.05;
-
-		if (value === normalPressure) {
-			var diff = 0;
-		}
-		else if (value < normalPressure) {
-			var diff = normalPressure - value;
-		}
-		else {
-			var diff = value - normalPressure;
-		}
-
-		if (diff >= alarmDiff-0.01) { // -0.01 => weird error: no warning shown at 1.8 but at 2.2
-			return "tire alarm";
-		}
-		else {
-			return "tire norm";
-		}
-
 	}
 
 })); /** EOF **/
