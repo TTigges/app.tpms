@@ -156,8 +156,9 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 	 * Add any content that will be static here
 	 */
 
-	pressure: {
-		normal: 2
+	pressureSettings: {
+		normal: 2,
+		warnDiff: 0.2
 	},
 
 	outTemp: 0,
@@ -288,7 +289,9 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 			var tempHeight = this.pixelposition(tempPressure);
 			var tempOffset = this.calcoffset(tempPressure);
 			var tempColor = this.perc2color(tempOffset);
+			var className = this.checkwarn(tempPressure);
 
+			this.canvas.find("#"+this.tires[i].tireid).attr("class", className);
 			this.canvas.find("#"+this.tires[i].prgid).css({"background": tempColor, "height": tempHeight+"px"});
 			this.canvas.find("#"+this.tires[i].pressureid).html(tempPressure);
 			this.canvas.find("#"+this.tires[i].tempid).html(values[i].temperature);
@@ -308,13 +311,13 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 	},
 
 	pixelposition: function(pres) {
-		var maxPressure = this.pressure.normal + 0.5; // could be modified
+		var maxPressure = this.pressureSettings.normal + 0.5; // could be modified
 		var maxHeight = 58; //px // specific to the car background image (tire height = gauge height)
 		return maxHeight-(maxHeight*(maxPressure-pres));
 	},
 
 	calcoffset: function(pres) {
-		var normalPressure = this.pressure.normal;
+		var normalPressure = this.pressureSettings.normal;
 		var multiplier = 6; // can be modified to have the color change earlier or later to yellow/orange/red
 		if (pres === normalPressure) {
 			var diff = 0;
@@ -344,6 +347,30 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 		}
 		var h = r * 0x10000 + g * 0x100 + b * 0x1;
 		return '#' + ('000000' + h.toString(16)).slice(-6);
+	},
+
+	checkwarn: function(value) {
+		var normalPressure = this.pressureSettings.normal;
+		var alarmDiff = this.pressureSettings.warnDiff;
+	//	var warnDiff = alarmDiff - 0.05;
+
+		if (value === normalPressure) {
+			var diff = 0;
+		}
+		else if (value < normalPressure) {
+			var diff = normalPressure - value;
+		}
+		else {
+			var diff = value - normalPressure;
+		}
+
+		if (diff >= alarmDiff-0.01) { // -0.01 => weird error: no warning shown at 1.8 but at 2.2
+			return "tire alarm";
+		}
+		else {
+			return "tire norm";
+		}
+
 	}
 
 })); /** EOF **/

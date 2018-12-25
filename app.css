@@ -86,14 +86,28 @@
 	border: 1px solid rgba(255,255,255,.4);
 }
 
-[app="app.tpms"] #tpmsContainer #tires .tirecontainer.left .tire.warning {
+[app="app.tpms"] #tpmsContainer #tires .tirecontainer.left .tire.warn {
+	box-shadow: 
+		-10px 0px 20px 0px rgba(255, 100, 0, .5),
+		0px -5px 10px 0px rgba(255, 100, 0, .5),
+		0px 5px 10px 0px rgba(255, 100, 0, .5);
+}
+
+[app="app.tpms"] #tpmsContainer #tires .tirecontainer.right .tire.warn {
+	box-shadow: 
+		10px 0px 20px 0px rgba(255, 100, 0, .5),
+		0px -5px 10px 0px rgba(255, 100, 0, .5),
+		0px 5px 10px 0px rgba(255, 100, 0, .5);
+}
+
+[app="app.tpms"] #tpmsContainer #tires .tirecontainer.left .tire.alarm {
 	box-shadow: 
 		-10px 0px 20px 0px rgba(200, 0, 0, .5),
 		0px -5px 10px 0px rgba(200, 0, 0, .5),
 		0px 5px 10px 0px rgba(200, 0, 0, .5);
 }
 
-[app="app.tpms"] #tpmsContainer #tires .tirecontainer.right .tire.warning {
+[app="app.tpms"] #tpmsContainer #tires .tirecontainer.right .tire.alarm {
 	box-shadow: 
 		10px 0px 20px 0px rgba(200, 0, 0, .5),
 		0px -5px 10px 0px rgba(200, 0, 0, .5),
