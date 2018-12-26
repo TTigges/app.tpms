@@ -38,7 +38,7 @@
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
-	background:url(images/topview_415.png) no-repeat center center;
+	background:url(images/topview_470.png) no-repeat center center;
 	background-size: 35%;
 }
 
@@ -188,8 +188,6 @@
 	display: inline-block;
 }
 
-
-
 [app="app.tpms"] #tpmsContainer #outsidetemp {
 	display: block;
 	position: absolute;
@@ -205,6 +203,7 @@
 }
 
 [app="app.tpms"] #tpmsContainer #outsidetemp #outtempcontainer {
+	position: relative;
 	width: 100%;
 	text-align: right;
 	font-size: 24px;
@@ -215,6 +214,10 @@
 
 [app="app.tpms"] #tpmsContainer #outsidetemp #outtempcontainer .dimmed {
 	opacity: .75;
+}
+
+[app="app.tpms"] #tpmsContainer #outsidetemp #outtempname {
+	position: relative;
 }
 
 [app="app.tpms"] #tpmsContainer #normpressure {
@@ -228,8 +231,8 @@
 	font-size: 11px;
 	line-height: 10px;
 	text-align: left;
+	cursor: pointer;
 	padding: 8px 0 8px 8px;
-	/*cursor: pointer;*/
 }
 
 [app="app.tpms"] #tpmsContainer #normpressure:hover {
@@ -240,6 +243,7 @@
 }
 
 [app="app.tpms"] #tpmsContainer #normpressure #normprescontainer {
+	position: relative;
 	width: 100%;
 	text-align: left;
 	font-size: 24px;
@@ -256,11 +260,6 @@
 	font-size: 11px;
 }
 
-[app="app.tpms"] #tpmsContainer #outsidetemp {
-	top: 345px;
-	width: 115px;
-}
-[app="app.tpms"] #tpmsContainer #normpressure {
-	top: 345px;
-	width: 115px;
+[app="app.tpms"] #tpmsContainer #normpressure #normpresname {
+	position: relative;
 }
