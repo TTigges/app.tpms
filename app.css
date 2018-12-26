@@ -256,8 +256,9 @@
 	opacity: .75;
 }
 
-[app="app.tpms"] #tpmsContainer #normpressure #normprescontainer .dimmed {
+[app="app.tpms"] #tpmsContainer #normpressure #normprescontainer .small {
 	font-size: 11px;
+	line-height: 20px;
 }
 
 [app="app.tpms"] #tpmsContainer #normpressure #normpresname {
