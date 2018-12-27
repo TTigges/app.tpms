@@ -143,25 +143,26 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 
 	},
 
-	/***
-	 *** User Interface Life Cycles
-	 ***/
-
-	/**
-	 * (created)
-	 *
-	 * Executed when the application gets initialized
-	 *
-	 * Add any content that will be static here
-	 */
-
 	pressureSettings: {
 		normal: 2.00,
 		warnDiff: 0.2,
 		multiplier: 6 // can be modified to have the color change earlier or later to yellow/orange/red
 	},
 
+	/*
+	 * TPMS
+	 */
+
 	outTemp: 0,
+
+	locale: { // TBD: pressure and temperature units and names according to locale
+		na: {
+
+		},
+		eu: {
+
+		}
+	},
 
 	tires: [
 		{
@@ -198,6 +199,18 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 		}
 	],
 
+	/***
+	 *** User Interface Life Cycles
+	 ***/
+
+	/**
+	 * (created)
+	 *
+	 * Executed when the application gets initialized
+	 *
+	 * Add any content that will be static here
+	 */
+
 	created: function() {
 
 		this.tirescontainer = this.element("div", "tires", false, false, "", false);
@@ -221,21 +234,21 @@ CustomApplicationsHandler.register("app.tpms", new CustomApplication({
 			var tirecontainer = this.element("div", this.tires[i].position, (this.tires[i].classeslist + " tirecontainer"), false, [tire, gaugecontainer, pressure, temperature]).appendTo(this.tirescontainer);
 		}
 
-				var otvalue = this.element("span", "outtemp", false, false, "0", true);
-				var otunit  = this.element("span", "outtempunit", "dimmed", false, "&deg;C", true);
-			var otcontainer = this.element("div", "outtempcontainer", false, false, [otvalue, otunit], true);
-			var otname = this.element("div", "outtempname", false, false, "Au&szlig;entemperatur", true);
+		var otvalue = this.element("span", "outtemp", false, false, "0", true);
+		var otunit  = this.element("span", "outtempunit", "dimmed", false, "&deg;C", true);
+		var otcontainer = this.element("div", "outtempcontainer", false, false, [otvalue, otunit], true);
+		var otname = this.element("div", "outtempname", false, false, "Au&szlig;entemperatur", true);
 		var outsideTemperature = this.element("div", "outsidetemp", false, false, [otcontainer, otname]).appendTo(this.tirescontainer);
 
-				var npvalue = this.element("span", "normpres", false, false, this.decDot(this.round(this.pressureSettings.normal)), true);
-				var npunit  = this.element("span", "normpresunit", "dimmed small", false, "&nbsp;bar", true);
-			var npcontainer = this.element("div", "normprescontainer", false, false, [npvalue, npunit], true);
-			var npname = this.element("div", "normpresname", false, false, "Soll-Druck", true);
+		var npvalue = this.element("span", "normpres", false, false, this.decDot(this.round(this.pressureSettings.normal)), true);
+		var npunit  = this.element("span", "normpresunit", "dimmed small", false, "&nbsp;bar", true);
+		var npcontainer = this.element("div", "normprescontainer", false, false, [npvalue, npunit], true);
+		var npname = this.element("div", "normpresname", false, false, "Soll-Druck", true);
 		var normalPressure = this.element("div", "normpressure", false, false, [npcontainer, npname]).appendTo(this.tirescontainer);
 
 		this.tpmsContainer = this.element("div", "tpmsContainer", false, false, this.tirescontainer, false);
-
-//
+		
+//		Data Subscriptions:
 		this.subscribe(VehicleData.temperature.outside, function(value) {
 			this.outTemp = value;
 			this.canvas.find("#outtemp").html(value);
