@@ -51,7 +51,7 @@
 	position: absolute;
 	width: 250px;
 	height: 59px;
-/*			border: 1px dotted rgba(0,0,0,.5);*/
+/*	border: 1px dotted rgba(0,0,0,.5);*/
 }
 
 [app="app.tpms"] #tpmsContainer #tires .tirecontainer.front {
@@ -160,7 +160,7 @@
 	display: block;
 	z-index: 99;
 	position: absolute;
-/*			transform: translateX(+50%);*/
+/*	transform: translateX(+50%);*/
 	opacity: .5;
 }
 
